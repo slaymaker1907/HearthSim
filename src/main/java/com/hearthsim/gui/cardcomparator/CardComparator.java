@@ -96,6 +96,8 @@ Comparator<ImplementedCardList.ImplementedCard>
 		}
 	}
 
+	private int count;
+	
 	@Override
 	public int compare(final ImplementedCard arg0, final ImplementedCard arg1)
 	{
@@ -111,19 +113,18 @@ Comparator<ImplementedCardList.ImplementedCard>
 		final CardVersusCard arg0Data = this.comparisonData.get(arg0);
 		final CardVersusCard arg1Data = this.comparisonData.get(arg1);
 
-		int count = 0;
+		count = 0;
 		start = totalStart = System.currentTimeMillis();
 		while (!this.isReady(arg0Data, arg1Data))
 		{
 			this.getNextResult(arg0, arg1);
-			count++;
 			final long currentTime = System.currentTimeMillis();
 			if ((currentTime - start) / 1000.0 > 60.0)
 			{
 				this.dumpData();
 				start = currentTime;
-				CardComparator.original.println((currentTime - totalStart)
-						/ 1000.0 / count + " seconds per comparison.");
+				CardComparator.original.println(1000.0 * count /(currentTime - totalStart)
+						 + " comparisons per second.");
 			}
 		}
 
@@ -233,6 +234,7 @@ Comparator<ImplementedCardList.ImplementedCard>
 
 	private void processSingleGameResult(final SingleGameResult result)
 	{
+	    count += result.result.getTotalGames();
 		for (final ImplementedCardList.ImplementedCard card : result.deck0)
 		{
 			if (!this.comparisonData.containsKey(card))

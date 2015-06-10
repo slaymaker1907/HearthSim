@@ -18,9 +18,10 @@ import com.hearthsim.card.ImplementedCardList.ImplementedCard;
  */
 public class DeckFactory {
     private ArrayList<ImplementedCard> cards;
+    private ArrayList<Card> cardsToBuild;
     private boolean limitCopies;
     private Random gen;
-    private ImplementedCard[] cardsToInclude;
+    private Card[] cardsToInclude;
 
     /**
      * This method initializes a new DeckFactory.
@@ -38,7 +39,15 @@ public class DeckFactory {
         cards.removeIf(filter);
         gen = new Random();
         this.limitCopies = limitCopies;
-        this.cardsToInclude = cardsToInclude;
+        this.cardsToInclude = new Card[cardsToInclude.length];
+        for(int i = 0; i < cardsToInclude.length; i++)
+            this.cardsToInclude[i] = cardsToInclude[i].createCardInstance();
+        
+        cardsToBuild = new ArrayList<Card>();
+        for(ImplementedCard card : cards)
+        {
+            cardsToBuild.add(card.createCardInstance());
+        }
     }
 
     /**
@@ -61,14 +70,14 @@ public class DeckFactory {
         int resultPos = 0;
 
         // Add in cardsToInclude
-        for (ImplementedCard cardToInclude : cardsToInclude)
-            result[resultPos++] = cardToInclude.createCardInstance();
+        for (Card cardToInclude : cardsToInclude)
+            result[resultPos++] = cardToInclude.deepCopy();
 
         if (limitCopies) {
-            HashMap<ImplementedCard, Integer> cardsInDeck = new HashMap<ImplementedCard, Integer>();
+            HashMap<Card, Integer> cardsInDeck = new HashMap<Card, Integer>();
 
             // Insert included cards into HashMap.
-            for (ImplementedCard cardToInclude : cardsToInclude) {
+            for (Card cardToInclude : cardsToInclude) {
                 if (cardsInDeck.containsKey(cardToInclude))
                     cardsInDeck.put(cardToInclude,
                             cardsInDeck.get(cardToInclude) + 1);
@@ -77,26 +86,25 @@ public class DeckFactory {
             }
 
             while (resultPos < 30) {
-                ImplementedCard toAdd;
+                Card toAdd;
                 // Keep going until a card is found that can be added to the
                 // deck.
                 while (true) {
-                    toAdd = cards.get(gen.nextInt(cards.size()));
+                    toAdd = cardsToBuild.get(gen.nextInt(cards.size())).deepCopy();
                     if (!cardsInDeck.containsKey(toAdd)) {
                         cardsInDeck.put(toAdd, 1);
                         break;
                     } else if (cardsInDeck.get(toAdd).equals(1)
-                            && !toAdd.rarity_.equals("legendary")) {
+                            && !toAdd.getRarity().equals("legendary")) {
                         cardsInDeck.put(toAdd, 2);
                         break;
                     }
                 }
-                result[resultPos++] = toAdd.createCardInstance();
+                result[resultPos++] = toAdd;
             }
         } else {
             while (resultPos < 30) {
-                result[resultPos++] = cards.get(gen.nextInt(cards.size()))
-                        .createCardInstance();
+                result[resultPos++] = cardsToBuild.get(gen.nextInt(cards.size()));
             }
         }
 
@@ -142,7 +150,11 @@ public class DeckFactory {
             filter = filter.or((card) -> {
                 boolean result = true;
                 for (String rarity : rarities)
+                {
+                    if (card.rarity_ == null)
+                        return false;
                     result = result && !card.rarity_.equals(rarity);
+                }
                 return result;
             });
         }

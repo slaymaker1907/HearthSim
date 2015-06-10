@@ -64,6 +64,10 @@ public class Card implements DeepCopyable<Card> {
     public String getName() {
         return this.implementedCard != null ? this.implementedCard.name_ : null;
     }
+    
+    public String getRarity() {
+        return this.implementedCard != null ? this.implementedCard.rarity_ : null;
+    }
 
     /**
      * Get the mana cost of the card

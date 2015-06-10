@@ -17,7 +17,7 @@ import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 
 @Slf4j
-class ImplementedCardList {
+class ImplementedCardList implements Serializable {
 
     private static ImplementedCardList instance
     
@@ -60,7 +60,7 @@ class ImplementedCardList {
     }
 
 
-    public class ImplementedCard implements Comparable<ImplementedCard> {
+    public class ImplementedCard implements Comparable<ImplementedCard>, Serializable {
 
         private static final htmlTagPattern = ~/<[a-zA-Z_0-9\/]+?>/
         private static final overloadPattern = ~/Overload:\s+?\((\d+)\)/

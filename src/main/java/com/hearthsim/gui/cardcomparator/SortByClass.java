@@ -1,7 +1,6 @@
 package com.hearthsim.gui.cardcomparator;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +9,7 @@ import java.util.function.Predicate;
 
 import com.hearthsim.card.ImplementedCardList;
 import com.hearthsim.card.ImplementedCardList.ImplementedCard;
+import com.hearthsim.util.DeckFactory;
 
 public class SortByClass
 {
@@ -18,20 +18,20 @@ public class SortByClass
 	{
 		if (args.length == 0)
 			args = new String[] { "Warlock" };
-		final Thread listenForDestruction = new Thread(() ->
-		{
-			while (true)
-			{
-				try
-				{
-					System.in.read();
-					System.exit(0);
-				} catch (final IOException e)
-				{
-				}
-			}
-		});
-		listenForDestruction.start();
+//		final Thread listenForDestruction = new Thread(() ->
+//		{
+//			while (true)
+//			{
+//				try
+//				{
+//					System.in.read();
+//					System.exit(0);
+//				} catch (final IOException e)
+//				{
+//				}
+//			}
+//		});
+//		listenForDestruction.start();
 		// listenForDestruction.setPriority(Thread.MIN_PRIORITY);
 
 		final String hero = args[0];
@@ -43,16 +43,18 @@ public class SortByClass
 
 	private static void runSort(final String rarity, final String hero)
 	{
-		final ArrayList<ImplementedCardList.ImplementedCard> allCards = new GenerateDecks()
-		.getCardsByCharClass(hero);
-		allCards.removeIf(new FilterByRarity(rarity));
-		System.out.println("Sorting " + allCards.size() + " cards. " + hero
+	    DeckFactory.DeckFactoryBuilder builder = new DeckFactory.DeckFactoryBuilder();
+	    builder.filterByHero("neutral", hero);
+	    builder.filterByRarity(rarity);
+		final ArrayList<ImplementedCardList.ImplementedCard> allCards = builder.buildDeckFactory().getAllPossibleCards();
+		CardComparator.original.println("Sorting " + allCards.size() + " cards. " + hero
 				+ " " + rarity);
 		final ImplementedCardList.ImplementedCard[] cards = new ImplementedCardList.ImplementedCard[allCards
 		                                                                                            .size()];
 		allCards.toArray(cards);
 		final CardComparator comp = new CardComparator(hero, hero
 				+ rarity + ".ser");
+//		final BetterCardComparator comp = new BetterCardComparator(hero + rarity + ".ser");
 		Arrays.parallelSort(cards, comp);
 
 		// Output the results.
