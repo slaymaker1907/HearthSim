@@ -234,7 +234,8 @@ Comparator<ImplementedCardList.ImplementedCard>
 
 	private void processSingleGameResult(final SingleGameResult result)
 	{
-	    count += result.result.getTotalGames();
+	    // count += result.result.getTotalGames();
+	    count++;
 		for (final ImplementedCardList.ImplementedCard card : result.deck0)
 		{
 			if (!this.comparisonData.containsKey(card))

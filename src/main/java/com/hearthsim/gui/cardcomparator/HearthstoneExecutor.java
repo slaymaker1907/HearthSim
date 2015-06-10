@@ -1,15 +1,15 @@
 package com.hearthsim.gui.cardcomparator;
 
+import java.util.Collection;
+
 public class HearthstoneExecutor
 {
     private ComputeGames[] tasks;
-    private BetterCardComparator observer;
     private PlayerModelFactory.Builder player0, player1;
     private Thread[] threads;
     
-    public HearthstoneExecutor(BetterCardComparator observer, PlayerModelFactory.Builder player0, PlayerModelFactory.Builder player1)
+    public HearthstoneExecutor(PlayerModelFactory.Builder player0, PlayerModelFactory.Builder player1)
     {
-        this.observer = observer;
         this.player0 = player0;
         this.player1 = player1;
         startComputation();
@@ -22,7 +22,7 @@ public class HearthstoneExecutor
         for(int i = 0; i < tasks.length; i++)
         {
             ComputeGames computation = new ComputeGames(player0.createPlayerModelFactory(), player1.createPlayerModelFactory());
-            computation.addObserver(observer);
+            tasks[i] = computation;
             threads[i] = new Thread(computation);
             threads[i].start();
         }
@@ -38,5 +38,13 @@ public class HearthstoneExecutor
     protected void finalize()
     {
         stopComputation();
+    }
+    
+    public int accumulateResults(Collection<DetailedGameResult> results)
+    {
+        int count = 0;
+        for (ComputeGames task : tasks)
+            count += task.addResultsToCollection(results);
+        return count;
     }
 }

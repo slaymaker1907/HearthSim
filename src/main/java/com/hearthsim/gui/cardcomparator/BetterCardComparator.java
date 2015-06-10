@@ -6,10 +6,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 import org.apache.commons.math3.stat.inference.AlternativeHypothesis;
 import org.apache.commons.math3.stat.inference.BinomialTest;
@@ -18,7 +17,7 @@ import com.hearthsim.card.Deck;
 import com.hearthsim.card.ImplementedCardList.ImplementedCard;
 import com.hearthsim.util.DeckFactory;
 
-public class BetterCardComparator implements Comparator<ImplementedCard>, Observer
+public class BetterCardComparator implements Comparator<ImplementedCard>
 {
     private int count;
     private HashMap<String, CardVersusCard> cardData;
@@ -69,31 +68,53 @@ public class BetterCardComparator implements Comparator<ImplementedCard>, Observ
         return result;
     }
 
-    @Override
-    public void update(Observable o, Object arg) 
+//    @Override
+//    public void update(Observable o, Object arg) 
+//    {
+//        try
+//        {
+//            DetailedGameResult result = (DetailedGameResult)arg;
+//            Deck mainDeck = result.cards;
+//            synchronized(cardData)
+//            {
+//                count++;
+//                for(int i = 0; i < 30; i++)
+//                {
+//                    int wins;
+//                    if (result.isWin)
+//                        wins = 1;
+//                    else
+//                        wins = 0;
+//                    CardGameResult gameResult = new CardGameResult(wins, 1);
+//                    cardData.get(mainDeck.drawCard(i).getName()).addGameResult(gameResult);
+//                }
+//            }
+//        } catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
+//    }
+    
+    public void addResult(DetailedGameResult result)
     {
-        try
+        Deck mainDeck = result.cards;
+        for(int i = 0; i < 30; i++)
         {
-            DetailedGameResult result = (DetailedGameResult)arg;
-            Deck mainDeck = result.cards;
-            synchronized(cardData)
-            {
-                count++;
-                for(int i = 0; i < 30; i++)
-                {
-                    int wins;
-                    if (result.isWin)
-                        wins = 1;
-                    else
-                        wins = 0;
-                    CardGameResult gameResult = new CardGameResult(wins, 1);
-                    cardData.get(mainDeck.drawCard(i).getName()).addGameResult(gameResult);
-                }
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
+            int wins;
+            if (result.isWin)
+                wins = 1;
+            else
+                wins = 0;
+            CardGameResult gameResult = new CardGameResult(wins, 1);
+            cardData.get(mainDeck.drawCard(i).getName()).addGameResult(gameResult);
         }
+    }
+    
+    public void processResults(Collection<DetailedGameResult> results, int count)
+    {
+        this.count += count;
+        for(DetailedGameResult result : results)
+            addResult(result);
     }
     
     private class ObserverFunctor implements Runnable
@@ -106,8 +127,8 @@ public class BetterCardComparator implements Comparator<ImplementedCard>, Observ
         public ObserverFunctor(PlayerModelFactory.Builder player0, PlayerModelFactory.Builder player1, BetterCardComparator compRef, CardVersusCard first, CardVersusCard second)
         {
             PlayerModelFactory.Builder randomFactory = new PlayerModelFactory.Builder().specifyPlayerInfo("", (byte) 1);
-            toControl0 = new HearthstoneExecutor(compRef, player0, randomFactory);
-            toControl1 = new HearthstoneExecutor(compRef, player1, randomFactory);
+            toControl0 = new HearthstoneExecutor(player0, randomFactory);
+            toControl1 = new HearthstoneExecutor(player1, randomFactory);
             this.first = first;
             this.second = second;
             this.compRef = compRef;
@@ -123,16 +144,19 @@ public class BetterCardComparator implements Comparator<ImplementedCard>, Observ
                     Thread.sleep(1000 * 60);
                 } catch (InterruptedException e) { }
                 
-                synchronized(cardData)
-                {
-                    dumpData();
+                ArrayList<DetailedGameResult> results = new ArrayList<DetailedGameResult>();
+                int count = 0;
+                count += toControl0.accumulateResults(results);
+                count += toControl1.accumulateResults(results);
+                compRef.processResults(results, count);
+                
+                dumpData();
 
-                    if (isReady(first, second))
-                    {
-                        toControl0.stopComputation();
-                        toControl1.stopComputation();
-                        return;
-                    }
+                if (isReady(first, second))
+                {
+                    toControl0.stopComputation();
+                    toControl1.stopComputation();
+                    return;
                 }
                 
                 long currentTime = System.currentTimeMillis() - start;
@@ -177,7 +201,7 @@ public class BetterCardComparator implements Comparator<ImplementedCard>, Observ
             fileIn.close();
         } catch (final Exception e)
         {
-            e.printStackTrace();
+            // e.printStackTrace();
             CardComparator.original
                     .println("Could not read in comparison data.  Starting from scratch.");
             this.cardData = new HashMap<String, CardVersusCard>();
