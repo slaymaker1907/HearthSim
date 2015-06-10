@@ -17,7 +17,7 @@ public class SortByClass
 	public static void main(String[] args)
 	{
 		if (args.length == 0)
-			args = new String[] { "Warlock" };
+			args = new String[] { "warlock" };
 //		final Thread listenForDestruction = new Thread(() ->
 //		{
 //			while (true)
@@ -49,12 +49,13 @@ public class SortByClass
 		final ArrayList<ImplementedCardList.ImplementedCard> allCards = builder.buildDeckFactory().getAllPossibleCards();
 		CardComparator.original.println("Sorting " + allCards.size() + " cards. " + hero
 				+ " " + rarity);
+		System.setOut(new NullPrintStream());
 		final ImplementedCardList.ImplementedCard[] cards = new ImplementedCardList.ImplementedCard[allCards
 		                                                                                            .size()];
 		allCards.toArray(cards);
-		final CardComparator comp = new CardComparator(hero, hero
-				+ rarity + ".ser");
-//		final BetterCardComparator comp = new BetterCardComparator(hero + rarity + ".ser");
+//		final CardComparator comp = new CardComparator(hero, hero
+//				+ rarity + ".ser");
+		final BetterCardComparator comp = new BetterCardComparator(hero + rarity + ".ser");
 		Arrays.parallelSort(cards, comp);
 
 		// Output the results.

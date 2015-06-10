@@ -51,7 +51,7 @@ def setupAppenders() {
 
     appender('systemOut', ConsoleAppender) {
         filter(ThresholdFilter) {
-            level = INFO
+            level = ERROR
         }
         encoder(PatternLayoutEncoder) {
             pattern = format
