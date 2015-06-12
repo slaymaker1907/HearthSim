@@ -47,13 +47,13 @@ public class ComputeGames implements Runnable
                 {
                     results.add(toAdd);
                 }
+                count.incrementAndGet();
             }
             catch (Exception e)
             {
             }
             finally 
             {
-                count.incrementAndGet();
             }
         }
     }
