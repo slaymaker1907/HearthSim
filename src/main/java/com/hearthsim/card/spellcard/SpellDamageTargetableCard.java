@@ -6,6 +6,7 @@ import com.hearthsim.event.filter.FilterCharacter;
 import com.hearthsim.event.filter.FilterCharacterTargetedSpell;
 
 public abstract class SpellDamageTargetableCard extends SpellDamage implements EffectOnResolveTargetable<SpellDamage> {
+    protected EffectCharacterDamageSpell<SpellDamage> effect;
 
     @Override
     public FilterCharacter getTargetableFilter() {
