@@ -22,7 +22,7 @@ public class MekgineerThermaplugg extends Minion implements MinionDeadInterface 
      * */
     @Override
     public HearthTreeNode minionDeadEvent(PlayerSide thisMinionPlayerSide, PlayerSide deadMinionPlayerSide, Minion deadMinion, HearthTreeNode boardState) {
-        if (this.isInHand()) {
+        if (this.setInHand()) {
             return boardState;
         }
 
@@ -30,11 +30,16 @@ public class MekgineerThermaplugg extends Minion implements MinionDeadInterface 
             return boardState;
         }
 
-        if (!this.isAlive()) {
+        if (!this.isAlive() || boardState.data_.modelForSide(thisMinionPlayerSide).isBoardFull()) {
+            return boardState;
+        }
+
+        if (boardState.data_.modelForSide(thisMinionPlayerSide).getNumMinions() >= 7) {
             return boardState;
         }
 
         EffectCharacter<Minion> effect = new EffectCharacterSummon<>(new LeperGnome());
+
         return effect.applyEffect(thisMinionPlayerSide, this, thisMinionPlayerSide, this, boardState);
     }
 }

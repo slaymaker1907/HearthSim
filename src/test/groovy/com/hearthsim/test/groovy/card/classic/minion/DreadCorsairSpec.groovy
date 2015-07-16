@@ -1,5 +1,6 @@
 package com.hearthsim.test.groovy.card.classic.minion
 
+import com.hearthsim.card.CharacterIndex
 import com.hearthsim.card.basic.weapon.FieryWarAxe
 import com.hearthsim.card.classic.minion.common.DreadCorsair
 import com.hearthsim.model.BoardModel
@@ -31,9 +32,8 @@ class DreadCorsairSpec extends CardSpec {
     
     def "playing Dread Corsair with no weapon should use up 4 mana"() {
         def copiedBoard = startingBoard.deepCopy()
-        def target = root.data_.modelForSide(CURRENT_PLAYER).getCharacter(0)
         def theCard = root.data_.getCurrentPlayer().getHand().get(0)
-        def ret = theCard.useOn(CURRENT_PLAYER, target, root, null, null)
+        def ret = theCard.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
 
         expect:
         assertFalse(ret == null);
@@ -49,12 +49,11 @@ class DreadCorsairSpec extends CardSpec {
     
     def "playing Dread Corsair with Fiery War Axe should use up 1 mana"() {
         def copiedBoard = startingBoard.deepCopy()
-        def target = root.data_.modelForSide(CURRENT_PLAYER).getCharacter(0)
         def theCard = root.data_.getCurrentPlayer().getHand().get(1)
-        def ret = theCard.useOn(CURRENT_PLAYER, target, root, null, null)
+        def ret = theCard.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
         
         def dreadCorsair = root.data_.getCurrentPlayer().getHand().get(0)
-        dreadCorsair.useOn(CURRENT_PLAYER, target, root, null, null)
+        dreadCorsair.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
         
         expect:
         assertFalse(ret == null);

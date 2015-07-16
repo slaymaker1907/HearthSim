@@ -1,5 +1,6 @@
 package com.hearthsim.test.groovy.card.classic.minion
 
+import com.hearthsim.card.CharacterIndex
 import com.hearthsim.card.basic.minion.BloodfenRaptor
 import com.hearthsim.card.basic.minion.GoldshireFootman
 import com.hearthsim.card.basic.minion.RiverCrocolisk
@@ -38,7 +39,7 @@ class StampedingKodoSpec extends CardSpec {
     def "cannot play for waiting player's side"() {
         def copiedBoard = startingBoard.deepCopy()
         def theCard = root.data_.getCurrentPlayer().getHand().get(0)
-        def ret = theCard.useOn(WAITING_PLAYER, 0, root, null, null)
+        def ret = theCard.useOn(WAITING_PLAYER, CharacterIndex.HERO, root)
 
         expect:
 
@@ -49,7 +50,7 @@ class StampedingKodoSpec extends CardSpec {
     def "playing Stampeding Kodo while there are no other minions no board"() {
         def copiedBoard = startingBoard.deepCopy()
         def theCard = root.data_.getCurrentPlayer().getHand().get(0)
-        def ret = theCard.useOn(CURRENT_PLAYER, 0, root, null, null)
+        def ret = theCard.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
 
         expect:
         assertFalse(ret == null)
@@ -70,13 +71,15 @@ class StampedingKodoSpec extends CardSpec {
         startingBoard.placeMinion(WAITING_PLAYER, new RiverCrocolisk())
         def copiedBoard = startingBoard.deepCopy()
         def theCard = root.data_.getCurrentPlayer().getHand().get(0)
-        def ret = theCard.useOn(CURRENT_PLAYER, 0, root)
+        def ret = theCard.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
 
         expect:
         assertFalse(ret == null)
 
         assertBoardDelta(copiedBoard, ret.data_) {
             currentPlayer {
+                playMinion(StampedingKodo)
+                mana(2)
                 numCardsUsed(1)
             }
         }
@@ -85,26 +88,16 @@ class StampedingKodoSpec extends CardSpec {
         assertEquals(ret.numChildren(), 2)
         
         HearthTreeNode child0 = ret.getChildren().get(0);
-        assertBoardDelta(startingBoard, child0.data_) {
-            currentPlayer {
-                playMinion(StampedingKodo)
-                mana(2)
-                numCardsUsed(1)
-            }
+        assertBoardDelta(ret.data_, child0.data_) {
             waitingPlayer {
-                removeMinion(0)
+                removeMinion(CharacterIndex.MINION_1)
             }
         }
 
         HearthTreeNode child1 = ret.getChildren().get(1);
-        assertBoardDelta(startingBoard, child1.data_) {
-            currentPlayer {
-                playMinion(StampedingKodo)
-                mana(2)
-                numCardsUsed(1)
-            }
+        assertBoardDelta(ret.data_, child1.data_) {
             waitingPlayer {
-                removeMinion(2)
+                removeMinion(CharacterIndex.MINION_3)
             }
         }
 

@@ -1,6 +1,8 @@
 package com.hearthsim.model;
 
 import com.hearthsim.card.Card;
+import com.hearthsim.card.CardInHandIndex;
+import com.hearthsim.card.CharacterIndex;
 import com.hearthsim.card.Deck;
 import com.hearthsim.card.minion.Hero;
 import com.hearthsim.card.minion.Minion;
@@ -27,7 +29,7 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
 
     // this uses identity list because we need exact reference equality and we modified Minion.equals
     private IdentityLinkedList<Minion> minions;
-    private IdentityLinkedList<Card> hand;
+    private HandModel hand;
     private byte overload;
 
     private byte numCardsUsed;
@@ -38,7 +40,7 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
         this.hero = hero;
         this.deck = deck;
         this.minions = new IdentityLinkedList<>();
-        this.hand = new IdentityLinkedList<>();
+        this.hand = new HandModel();
         this.numCardsUsed = 0;
         this.deckPos = 0;
         this.fatigueDamage = 1;
@@ -49,12 +51,12 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
         if (card == null) {
             return null;
         }
-        card.isInHand(true);
+        card.setInHand(true);
         return card;
     }
 
-    public Minion getCharacter(int index) {
-        return index == 0 ? this.getHero() : this.minions.get(index - 1);
+    public Minion getCharacter(CharacterIndex index) {
+        return index == CharacterIndex.HERO ? this.getHero() : this.minions.get(index.getInt() - 1);
     }
 
     public int getNumCharacters() {
@@ -128,7 +130,7 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
         return hand;
     }
 
-    public void setHand(IdentityLinkedList<Card> hand) {
+    public void setHand(HandModel hand) {
         this.hand = hand;
     }
 
@@ -193,12 +195,12 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
         return this.hand.size() >= 10;
     }
 
-    public int getIndexForCharacter(Minion character) {
+    public CharacterIndex getIndexForCharacter(Minion character) {
         if (this.hero.equals(character)) {
-            return 0;
+            return CharacterIndex.HERO;
         } else {
             int minionIndex = this.minions.indexOf(character);
-            return minionIndex >= 0 ? this.minions.indexOf(character) + 1 : minionIndex;
+            return minionIndex >= 0 ? CharacterIndex.fromInteger(this.minions.indexOf(character) + 1) : CharacterIndex.UNKNOWN;
         }
     }
 
@@ -237,14 +239,16 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
     }
 
     public void placeCardHand(Card card) {
-        card.isInHand(true);
+        if (hand.isFull())
+            return;
+        card.setInHand(true);
         hand.add(card);
     }
 
     public void placeCardHand(int cardIndex) {
         Card card = drawFromDeck(cardIndex);
-        card.isInHand(true);
-        hand.add(card);
+        if (card != null)
+            placeCardHand(card);
     }
 
     public void placeCardDeck(Card card) {
@@ -258,25 +262,26 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
             hero.takeDamage(fatigueDamage);
             ++fatigueDamage;
         } else {
-            card.isInHand(true);
-            hand.add(card);
+            placeCardHand(card);
             ++deckPos;
         }
         return card;
     }
 
-    public ArrayList<Minion> getMinionsAdjacentToCharacter(int characterIndex) {
+    public ArrayList<Minion> getMinionsAdjacentToCharacter(CharacterIndex characterIndex) {
         ArrayList<Minion> adjMinions = new ArrayList<>();
 
-        if (characterIndex >= this.getNumCharacters()) {
+        if (characterIndex.getInt() >= this.getNumCharacters()) {
             return adjMinions;
         }
 
-        if (characterIndex > 1) {
-            adjMinions.add(this.getCharacter(characterIndex - 1));
+        if (characterIndex.getInt() > 1) {
+            CharacterIndex leftIndex = CharacterIndex.fromInteger(characterIndex.getInt() - 1);
+            adjMinions.add(this.getCharacter(leftIndex));
         }
-        if (characterIndex < (this.getNumCharacters() - 1)) {
-            adjMinions.add(this.getCharacter(characterIndex + 1));
+        if (characterIndex.getInt() < (this.getNumCharacters() - 1)) {
+            CharacterIndex rightIndex = CharacterIndex.fromInteger(characterIndex.getInt() + 1);
+            adjMinions.add(this.getCharacter(rightIndex));
         }
         return adjMinions;
     }
@@ -398,8 +403,8 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
         }
 
         // used by the BoardModel master iterator
-        public int getLocation() {
-            return location;
+        public CharacterIndex getLocation() {
+            return CharacterIndex.fromInteger(location);
         }
 
         @Override
@@ -409,7 +414,7 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
 
         @Override
         public Minion next() {
-            return this.target.getCharacter(++location);
+            return this.target.getCharacter(CharacterIndex.fromInteger(++location));
         }
     }
 
@@ -422,8 +427,8 @@ public class PlayerModel implements DeepCopyable<PlayerModel>, Iterable<Minion> 
         }
 
         // used by the BoardModel master iterator
-        public int getLocation() {
-            return location;
+        public CardInHandIndex getLocation() {
+            return CardInHandIndex.fromInteger(location);
         }
 
         @Override

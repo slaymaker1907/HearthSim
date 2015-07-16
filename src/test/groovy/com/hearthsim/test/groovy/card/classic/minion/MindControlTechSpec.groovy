@@ -1,5 +1,6 @@
 package com.hearthsim.test.groovy.card.classic.minion
 
+import com.hearthsim.card.CharacterIndex
 import com.hearthsim.card.basic.minion.SilverHandRecruit
 import com.hearthsim.card.basic.minion.Voidwalker
 import com.hearthsim.card.basic.minion.WarGolem
@@ -37,14 +38,14 @@ class MindControlTechSpec extends CardSpec {
     }
 
     def "returned node is normal for no targets"() {
-        startingBoard.removeMinion(WAITING_PLAYER, 0);
-        startingBoard.removeMinion(WAITING_PLAYER, 0);
-        startingBoard.removeMinion(WAITING_PLAYER, 0);
-        startingBoard.removeMinion(WAITING_PLAYER, 0);
+        startingBoard.removeMinion(WAITING_PLAYER, CharacterIndex.MINION_1);
+        startingBoard.removeMinion(WAITING_PLAYER, CharacterIndex.MINION_1);
+        startingBoard.removeMinion(WAITING_PLAYER, CharacterIndex.MINION_1);
+        startingBoard.removeMinion(WAITING_PLAYER, CharacterIndex.MINION_1);
 
         def copiedBoard = startingBoard.deepCopy()
         def theCard = root.data_.getCurrentPlayer().getHand().get(0)
-        def ret = theCard.useOn(CURRENT_PLAYER, 0, root)
+        def ret = theCard.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
 
         expect:
         ret != null
@@ -53,7 +54,7 @@ class MindControlTechSpec extends CardSpec {
 
         assertBoardDelta(copiedBoard, ret.data_) {
             currentPlayer {
-                playMinion(MindControlTech, 0)
+                playMinion(MindControlTech, CharacterIndex.HERO)
                 mana(7)
                 numCardsUsed(1)
             }
@@ -61,11 +62,11 @@ class MindControlTechSpec extends CardSpec {
     }
 
     def "returned node is normal for only three targets"() {
-        startingBoard.removeMinion(WAITING_PLAYER, 0);
+        startingBoard.removeMinion(WAITING_PLAYER, CharacterIndex.MINION_1);
 
         def copiedBoard = startingBoard.deepCopy()
         def theCard = root.data_.getCurrentPlayer().getHand().get(0)
-        def ret = theCard.useOn(CURRENT_PLAYER, 0, root)
+        def ret = theCard.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
 
         expect:
         ret != null
@@ -74,7 +75,7 @@ class MindControlTechSpec extends CardSpec {
 
         assertBoardDelta(copiedBoard, ret.data_) {
             currentPlayer {
-                playMinion(MindControlTech, 0)
+                playMinion(MindControlTech, CharacterIndex.HERO)
                 mana(7)
                 numCardsUsed(1)
             }
@@ -84,7 +85,7 @@ class MindControlTechSpec extends CardSpec {
     def "returned node is RNG for two or more targets"() {
         def copiedBoard = startingBoard.deepCopy()
         def theCard = root.data_.getCurrentPlayer().getHand().get(0)
-        def ret = theCard.useOn(CURRENT_PLAYER, 0, root)
+        def ret = theCard.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
 
         expect:
         ret != null
@@ -93,67 +94,73 @@ class MindControlTechSpec extends CardSpec {
 
         assertBoardDelta(copiedBoard, ret.data_) {
             currentPlayer {
+                playMinion(MindControlTech, CharacterIndex.HERO)
+                mana(7)
                 numCardsUsed(1)
             }
         }
     }
 
     def "hits enemy minions"() {
+        def copiedBoard = root.data_.deepCopy()
+
         def theCard = root.data_.getCurrentPlayer().getHand().get(0)
-        def ret = theCard.useOn(CURRENT_PLAYER, 0, root)
+        def ret = theCard.useOn(CURRENT_PLAYER, CharacterIndex.HERO, root)
 
         expect:
         ret != null
         ret instanceof RandomEffectNode
         ret.numChildren() == 4
 
-        def copiedBoard = ret.data_.deepCopy()
-
         HearthTreeNode child0 = ret.getChildren().get(0);
         assertBoardDelta(copiedBoard, child0.data_) {
             currentPlayer {
+                playMinion(MindControlTech, CharacterIndex.HERO)
                 addMinionToField(FaerieDragon)
-                playMinion(MindControlTech, 0)
                 mana(7)
+                numCardsUsed(1)
             }
             waitingPlayer {
-                removeMinion(0)
+                removeMinion(CharacterIndex.MINION_1)
             }
         }
 
         HearthTreeNode child1 = ret.getChildren().get(1);
         assertBoardDelta(copiedBoard, child1.data_) {
             currentPlayer {
+                playMinion(MindControlTech, CharacterIndex.HERO)
                 addMinionToField(StranglethornTiger)
-                playMinion(MindControlTech, 0)
                 mana(7)
+                numCardsUsed(1)
             }
             waitingPlayer {
-                removeMinion(1)
+                removeMinion(CharacterIndex.MINION_2)
             }
         }
 
         HearthTreeNode child2 = ret.getChildren().get(2);
         assertBoardDelta(copiedBoard, child2.data_) {
             currentPlayer {
+                playMinion(MindControlTech, CharacterIndex.HERO)
                 addMinionToField(SludgeBelcher)
-                playMinion(MindControlTech, 0)
                 mana(7)
+                numCardsUsed(1)
             }
             waitingPlayer {
-                removeMinion(2)
+                removeMinion(CharacterIndex.MINION_3)
             }
         }
 
         HearthTreeNode child3 = ret.getChildren().get(3);
         assertBoardDelta(copiedBoard, child3.data_) {
             currentPlayer {
+                playMinion(MindControlTech, CharacterIndex.HERO)
                 addMinionToField(SilverHandRecruit)
-                playMinion(MindControlTech, 0)
                 mana(7)
+                numCardsUsed(1)
             }
             waitingPlayer {
-                removeMinion(3)
+                removeMinion(CharacterIndex.MINION_4)
             }
         }
     }

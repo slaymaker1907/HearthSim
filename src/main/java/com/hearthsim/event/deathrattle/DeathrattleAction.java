@@ -18,8 +18,13 @@ public abstract class DeathrattleAction<T extends Card> {
      */
     public HearthTreeNode performAction(T origin,
                                         PlayerSide playerSide,
-                                        HearthTreeNode boardState,
-                                        boolean singleRealizationOnly) {
+                                        HearthTreeNode boardState) {
+        if (origin == null)
+            return boardState;
+        if (origin.isDeathrattleTriggered())
+            return null;
+        else
+            origin.setDeathrattleTriggered(true);
         return boardState;
     }
 
