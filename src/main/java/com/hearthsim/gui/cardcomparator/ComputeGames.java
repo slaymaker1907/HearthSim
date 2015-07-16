@@ -52,9 +52,6 @@ public class ComputeGames implements Runnable
             catch (Exception e)
             {
             }
-            finally 
-            {
-            }
         }
     }
     
