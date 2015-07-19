@@ -23,7 +23,7 @@ public class ArenaGenerator
     private static final Random Gen = new Random();
     // TODO Change this to be an immutable list.
     private static final Set<String> Rarities = ArenaGenerator.queryPossibleAttributes((card) -> card.rarity_);
-    private static final List<String> Heroes;
+    public static final List<String> Heroes;
     static
     {
         Function<ImplementedCard, String> filterForHeroes = (card) -> ArenaGenerator.ensureCapitalization(card.charClass_);
@@ -42,13 +42,13 @@ public class ArenaGenerator
         return toUnCapitalize.substring(0, 1).toLowerCase() + toUnCapitalize.substring(1, toUnCapitalize.length());
     }
     
-    private static ArrayList<ImplementedCard> getCardsOfRarity(String hero, String ... rarities)
+    public static ArrayList<ImplementedCard> getCardsOfRarity(String hero, String ... rarities)
     {
         String lowerCaseHero = ArenaGenerator.unCapitalize(hero);
         return new DeckFactory.DeckFactoryBuilder().filterByRarity(rarities).filterByHero(lowerCaseHero, "neutral").buildDeckFactory().getAllPossibleCards();
     }
     
-    private static Set<String> queryPossibleAttributes(Function<ImplementedCard, String> query)
+    public static Set<String> queryPossibleAttributes(Function<ImplementedCard, String> query)
     {
         DeckFactory gen = new DeckFactory.DeckFactoryBuilder().buildDeckFactory();
         HashSet<String> attributeState = new HashSet<>();
@@ -58,7 +58,7 @@ public class ArenaGenerator
         return Collections.unmodifiableSet(attributeState);
     }
     
-    private static Double getTurnProbability(String rarity, int turnCount)
+    public static Double getTurnProbability(String rarity, int turnCount)
     {
         if (turnCount < 1 || turnCount > 30)
             throw new IllegalArgumentException("Turn count must be beween 1 and 30 inclusive, input: " + turnCount);
@@ -123,7 +123,7 @@ public class ArenaGenerator
         return (playerId, playerName) -> new PlayerModel(playerId, playerName, hero.deepCopy(), playerDeck.deepCopy());
     }
     
-    private static <InputT, OutputT> ArrayList<OutputT> convertCollection(ArrayList<InputT> inputList, Function<InputT, OutputT> mappingFunction)
+    public static <InputT, OutputT> ArrayList<OutputT> convertCollection(List<InputT> inputList, Function<InputT, OutputT> mappingFunction)
     {
         ArrayList<OutputT> result = new ArrayList<>();
         for(InputT input : inputList)
@@ -155,9 +155,11 @@ public class ArenaGenerator
                 return null;
             };
             
+            DraftData arenaState = new DraftData(result, hero, lookaheadFunction);
+            
             if (!runQuietly)
                 System.out.println("Selecting from: " + cardTriple[0].name_ + ", " + cardTriple[1].name_ + ", and " + cardTriple[2].name_);
-            ImplementedCard selectedCard = agent.takeTurn(cardTriple[0], cardTriple[1], cardTriple[2], lookaheadFunction);
+            ImplementedCard selectedCard = agent.takeTurn(cardTriple[0], cardTriple[1], cardTriple[2], arenaState);
             if (!runQuietly)
                 System.out.println("\tSelected : " + selectedCard.name_);
             result.add(selectedCard);
@@ -166,7 +168,7 @@ public class ArenaGenerator
         return result;
     }
         
-    private static Function<String, ArrayList<ImplementedCard>> getRarityFunction(String hero)
+    public static Function<String, ArrayList<ImplementedCard>> getRarityFunction(String hero)
     {
         String lowerCaseHero = ArenaGenerator.unCapitalize(hero);
         Function<String, ArrayList<ImplementedCard>> expensiveMapFunction = (rarity) ->

@@ -1,19 +1,16 @@
 package com.hearthsim.arena;
 
 import java.util.Random;
-import java.util.function.BiFunction;
 
 import com.hearthsim.card.ImplementedCardList.ImplementedCard;
-import com.hearthsim.model.PlayerModel;
 
 public class ArenaAgent implements ArenaTurnFunction 
 {
     private static final Random Gen = new Random();
     
     public static ImplementedCard randomSelector(ImplementedCard first, ImplementedCard second,
-            ImplementedCard third, BiFunction<ArenaTurnFunction, ImplementedCard, BiFunction<Byte, String, PlayerModel>> lookaheadFunction)
+            ImplementedCard third, DraftData arenaState)
     {
-        // TODO Improve this in the future by giving it a cheap stateless function but one that doesn't make horrible choices.
         int selection = ArenaAgent.Gen.nextInt(3);
         switch(selection)
         {
@@ -33,10 +30,10 @@ public class ArenaAgent implements ArenaTurnFunction
             ImplementedCard first,
             ImplementedCard second,
             ImplementedCard third,
-            BiFunction<ArenaTurnFunction, ImplementedCard, BiFunction<Byte, String, PlayerModel>> lookaheadFunction)
+            DraftData arenaState)
             throws Exception 
     {
-        ArenaCardComparator turn = new ArenaCardComparator(lookaheadFunction);
+        ArenaCardComparator turn = new ArenaCardComparator(arenaState.lookaheadFunction);
         if (turn.compare(first, second) > 0)
         {
             if (turn.compare(first, third) > 0)

@@ -4,6 +4,7 @@ import com.hearthsim.util.DeepCopyable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Deck implements DeepCopyable<Deck> {
 
@@ -165,5 +166,11 @@ public class Deck implements DeepCopyable<Deck> {
             copiedCards.add(card.deepCopy());
         }
         return new Deck(copiedCards);
+    }
+    
+    public List<Card> getAllCards()
+    {
+        // TODO Add this method to master.
+        return Collections.unmodifiableList(this.cards);
     }
 }

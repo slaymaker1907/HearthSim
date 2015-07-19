@@ -1,5 +1,6 @@
 package com.hearthsim.card;
 
+import com.hearthsim.card.ImplementedCardList.ImplementedCard;
 import com.hearthsim.card.minion.Hero;
 import com.hearthsim.card.minion.Minion;
 import com.hearthsim.card.spellcard.SpellCard;
@@ -18,6 +19,7 @@ import com.hearthsim.util.HearthAction.Verb;
 import com.hearthsim.util.factory.BoardStateFactoryBase;
 import com.hearthsim.util.tree.HearthTreeNode;
 import com.hearthsim.util.tree.RandomEffectNode;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -712,6 +714,11 @@ public class Card implements DeepCopyable<Card> {
     @Deprecated
     protected boolean isHero(Minion targetMinion) {
         return targetMinion instanceof Hero;
+    }
+    
+    public ImplementedCard getImplementedCard()
+    {
+        return this.implementedCard;
     }
 
 }
