@@ -27,8 +27,8 @@ public class ArenaCardComparator implements Comparator<ImplementedCard>
     public int compare(ImplementedCard o1, ImplementedCard o2) 
     {
         Supplier<BiFunction<Byte, String, PlayerModel>> supp1, supp2;
-        supp1 = () -> lookaheadFunction.apply(ManaCurveAgent::takeTurn, o1);
-        supp2 = () -> lookaheadFunction.apply(ManaCurveAgent::takeTurn, o2);
+        supp1 = () -> lookaheadFunction.apply(StaticArenaAgent::takeTurn, o1);
+        supp2 = () -> lookaheadFunction.apply(StaticArenaAgent::takeTurn, o2);
         IndeterminateExecutor<Integer> executor = new IndeterminateExecutor<>();
         try {
             return executor.apply(new RunArenaGame(supp1, supp2));
@@ -58,7 +58,7 @@ public class ArenaCardComparator implements Comparator<ImplementedCard>
     {
         try
         {
-            return runGame(player, ArenaGenerator.simulateArena(ManaCurveAgent::takeTurn));
+            return runGame(player, ArenaGenerator.simulateArena(StaticArenaAgent::takeTurn));
         }
         catch (Exception e)
         {

@@ -14,6 +14,7 @@ import java.lang.reflect.Constructor
 class ImplementedCardList implements Serializable {
 
     private static final ImplementedCardList instance
+    private static final long serialVersionUID = 7978375246389897722L;
     
     static class TypeParser {
         private static String TYPE_CLASSNAME_PATTERN_SPELL = "spell."
@@ -57,6 +58,7 @@ class ImplementedCardList implements Serializable {
 
     public class ImplementedCard implements Comparable<ImplementedCard>, Serializable {
 
+        private static final long serialVersionUID =  -4230080639149281832L;
         private static final htmlTagPattern = ~/<[a-zA-Z_0-9\/]+?>/
         private static final overloadPattern = ~/Overload:\s+?\((\d+)\)/
         private static final spellEffectPattern = ~/\$(\d+) damage/

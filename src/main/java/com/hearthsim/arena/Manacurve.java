@@ -10,34 +10,38 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.hearthsim.arena.tiergui.ArenaDatabase;
 import com.hearthsim.card.ImplementedCardList.ImplementedCard;
 import com.hearthsim.util.immutable.ImmutableMap;
 
 public class Manacurve 
 {
+    private static final String arenaDatabaseName = Program.manaCurveDataBase;
+    private static final Function<Integer, Double> computedIdealCurve = new ArenaDatabase(Manacurve.arenaDatabaseName).getWinningGroupCurve();
     public static final Set<Integer> ManaGroups = 
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(new Integer[]{2, 3, 4, 5, 6, 7})));
     public static final BiFunction<DraftData, Integer, Double> getExpectedGroupCount =
             Manacurve.getFastExpectedCountFunction();
     
-    public static int idealGroupCurve(int manaCostGroup)
+    public static Double idealGroupCurve(int manaCostGroup)
     {
         if (manaCostGroup < 0 || manaCostGroup > 7)
             throw new IllegalArgumentException(String.valueOf(manaCostGroup));
         
-        switch(manaCostGroup)
-        {
-        case 2:
-            return 10;
-        case 3:
-            return 5;
-        case 4:
-        case 5:
-        case 6:
-            return 4;
-        default:
-            return 3;
-        }
+//        switch(manaCostGroup)
+//        {
+//        case 2:
+//            return 10.0;
+//        case 3:
+//            return 5.0;
+//        case 4:
+//        case 5:
+//        case 6:
+//            return 4.0;
+//        default:
+//            return 3.0;
+//        }
+        return Manacurve.computedIdealCurve.apply(manaCostGroup);
     }
     
     public static int getManaCostGroup(int manaCost)
@@ -66,7 +70,7 @@ public class Manacurve
     
     private static BiFunction<String, Integer, Double> getCountOfManaGroupRarity(String hero)
     {
-        Function<String, ArrayList<ImplementedCard>> rarityFunction = ArenaGenerator.getRarityFunction(hero);
+        Function<String, List<ImplementedCard>> rarityFunction = ArenaGenerator.getRarityFunction(hero);
         Set<String> allRarities = ArenaGenerator.queryPossibleAttributes((card) -> card.rarity_);
         ImmutableMap<String, Function<Integer, Double>> mapFunction =
                 new ImmutableMap<>(allRarities, (rarity) -> 

@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.io.Serializable;
 
 import com.hearthsim.card.Card;
 import com.hearthsim.card.Deck;
@@ -135,7 +136,7 @@ public class ArenaGenerator
     {
         if (cardsToInclude.size() > 30)
             throw new IllegalArgumentException("Number of cards to include must be < 30. Actual: " + cardsToInclude.size());
-        Function<String, ArrayList<ImplementedCard>> rarityFunction = ArenaGenerator.getRarityFunction(hero);
+        Function<String, List<ImplementedCard>> rarityFunction = ArenaGenerator.getRarityFunction(hero);
             
         ArrayList<ImplementedCard> result = new ArrayList<>(cardsToInclude);
         for(int turnCount = cardsToInclude.size() + 1; turnCount <= 30; turnCount++)
@@ -168,27 +169,31 @@ public class ArenaGenerator
         return result;
     }
         
-    public static Function<String, ArrayList<ImplementedCard>> getRarityFunction(String hero)
+    public static Function<String, List<ImplementedCard>> getRarityFunction(String hero)
     {
         String lowerCaseHero = ArenaGenerator.unCapitalize(hero);
-        Function<String, ArrayList<ImplementedCard>> expensiveMapFunction = (rarity) ->
+        Function<String, List<ImplementedCard>> expensiveMapFunction = (Function<String, List<ImplementedCard>> & Serializable)(rarity) ->
         {
+            ArrayList<ImplementedCard> result;
             switch(rarity)
             {
             case "free":
             case "common":
-                return ArenaGenerator.getCardsOfRarity(lowerCaseHero, "free", "common");
+                result = ArenaGenerator.getCardsOfRarity(lowerCaseHero, "free", "common");
+                break;
             default:
-                return ArenaGenerator.getCardsOfRarity(lowerCaseHero, rarity);
+                result = ArenaGenerator.getCardsOfRarity(lowerCaseHero, rarity);
+                break;
             }
+            return Collections.unmodifiableList(result);
         };
         
-        ImmutableMap<String, ArrayList<ImplementedCard>> functionMap = new ImmutableMap<>(ArenaGenerator.Rarities, expensiveMapFunction);
+        ImmutableMap<String, List<ImplementedCard>> functionMap = new ImmutableMap<>(ArenaGenerator.Rarities, expensiveMapFunction);
         
         return (rarity) -> functionMap.get(rarity);
     }
     
-    private static ImplementedCard[] getCardTriple(ArrayList<ImplementedCard> cardsToChooseFrom)
+    private static ImplementedCard[] getCardTriple(List<ImplementedCard> cardsToChooseFrom)
     {
         HashSet<ImplementedCard> cardsInResult = new HashSet<ImplementedCard>();
         

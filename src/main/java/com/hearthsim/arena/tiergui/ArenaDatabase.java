@@ -9,9 +9,9 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.hearthsim.arena.ArenaAgent;
 import com.hearthsim.arena.ArenaCardComparator;
 import com.hearthsim.arena.ArenaGenerator;
+import com.hearthsim.arena.StaticArenaAgent;
 import com.hearthsim.card.Card;
 import com.hearthsim.card.ImplementedCardList.ImplementedCard;
 import com.hearthsim.model.PlayerModel;
@@ -31,47 +31,62 @@ public class ArenaDatabase
         }
     }
     
-    private static final String fileName = "ArenaDatabase.ser";
-    private static final ArrayList<ArenaResult> results = initializeResults();
-    private static final long start = System.currentTimeMillis();
+    private final String fileName;
+    private final ArrayList<ArenaResult> results;
+    private final long start;
+    private final int initialCount;
+    
+    public ArenaDatabase(String fileName)
+    {
+        this.fileName = fileName;
+        this.results = ArenaDatabase.initializeResults(this.fileName);
+        this.initialCount = results.size();
+        this.start = System.currentTimeMillis();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> this.saveData()));
+    }
     
     @SuppressWarnings("unchecked")
-    private static ArrayList<ArenaResult> initializeResults()
+    private static ArrayList<ArenaResult> initializeResults(String fileName)
     {
         try
         {
-            return (ArrayList<ArenaResult>)ArenaTierReference.getObjectFromFile(ArenaDatabase.fileName);
+            return (ArrayList<ArenaResult>)ArenaTierReference.getObjectFromFile(fileName);
         }
         catch (Exception e)
         {
-            System.out.println("Could not initialize ArenaDatabase from file.");
+            System.out.println("Could not initialize ArenaDatabase from " + fileName);
             return new ArrayList<ArenaResult>();
         }
     }
     
-    private static void saveData()
+    private synchronized void saveData()
     {
-        try 
+        synchronized(results)
         {
-            ArenaTierReference.saveObjectToFile(results, ArenaDatabase.fileName);
-        } catch (Exception e) 
-        {
-            System.out.println("Could not save ArenaDatabase to file.");
-            e.printStackTrace();
+            try 
+            {
+                ArenaTierReference.saveObjectToFile(results, this.fileName);
+            } catch (Exception e) 
+            {
+                System.out.println("Could not save ArenaDatabase to file.");
+                e.printStackTrace();
+            }
         }
     }
     
-    private static void addResult(Tuple<List<ImplementedCard>, String> winner,
+    private void addResult(Tuple<List<ImplementedCard>, String> winner,
             Tuple<List<ImplementedCard>, String> loser)
     {
-        synchronized(ArenaDatabase.results)
+        synchronized(this.results)
         {
-            ArenaDatabase.results.add(new ArenaResult(winner, loser));
+            this.results.add(new ArenaResult(winner, loser));
             if (results.size() % 50 == 0)
             {
-                ArenaDatabase.saveData();
+                this.saveData();
                 System.out.println("Processed " + results.size() + " results.");
-                double resultsPerSecond = results.size() * 1000.0 / (System.currentTimeMillis() - ArenaDatabase.start);
+                final int resultsProcessed = results.size() - this.initialCount;
+                double currentTime = (System.currentTimeMillis() - this.start) / 1000.0;
+                double resultsPerSecond = resultsProcessed / currentTime;
                 System.out.println("\tProcessing " + resultsPerSecond + " results per second.");
             }
         }
@@ -94,10 +109,10 @@ public class ArenaDatabase
         
     private static BiFunction<Byte, String, PlayerModel> getPlayer() throws Exception
     {
-        return ArenaGenerator.simulateArena(ArenaAgent::randomSelector);
+        return ArenaGenerator.simulateArena(StaticArenaAgent::takeTurn);
     }
     
-    public static Object gatherData()
+    public Object gatherData()
     {
         if (ArenaDatabase.isComplete())
             return new Object();
@@ -127,25 +142,25 @@ public class ArenaDatabase
             default:
                 return null;
             }
-            ArenaDatabase.addResult(ArenaDatabase.getTuple(winner), ArenaDatabase.getTuple(loser));
+            this.addResult(ArenaDatabase.getTuple(winner), ArenaDatabase.getTuple(loser));
             return null;
         }
     }
     
-    public static void forEach(Consumer<ArenaResult> procedure)
+    public void forEach(Consumer<ArenaResult> procedure)
     {
-        ArenaDatabase.results.forEach(procedure);
+        this.results.forEach(procedure);
     }
     
-    public static <Output> ArrayList<Output> mapResults(Function<ArenaResult, Output> mapFunction)
+    public <Output> ArrayList<Output> mapResults(Function<ArenaResult, Output> mapFunction)
     {
-        return ArenaGenerator.convertCollection(ArenaDatabase.results, mapFunction);
+        return ArenaGenerator.convertCollection(this.results, mapFunction);
     }
     
-    public static Function<Integer, Double> getWinningCurve()
+    public Function<Integer, Double> getWinningCurve()
     {
         Function<ImplementedCard, Integer> getManaGroup = (card) -> card.mana_;
-        ArrayList<ArrayList<Integer>> manaCosts = ArenaDatabase.mapResults((arenaResult) ->
+        ArrayList<ArrayList<Integer>> manaCosts = this.mapResults((arenaResult) ->
         {
                 return ArenaGenerator.convertCollection(arenaResult.winner.getFirst(), getManaGroup);
         });
@@ -162,5 +177,26 @@ public class ArenaDatabase
         ImmutableMap<Integer, Double> probabilityMap = new ImmutableMap<>(manaGroupCollection.keySet(),
                 (manaCost) -> ((double) manaGroupCollection.get(manaCost)) / totalCards);
         return (manaCost) -> probabilityMap.getOrDefault(manaCost, 0.0);
+    }
+    
+    public Function<Integer, Double> getWinningGroupCurve()
+    {
+        Function<Integer, Double> originalFunction = this.getWinningCurve();
+        final double twos = (originalFunction.apply(0) + originalFunction.apply(1) + originalFunction.apply(2)) * 30;
+        double sevens = 0.0;
+        for(int turn = 7; turn <= 20; turn++)
+            sevens += originalFunction.apply(turn);
+        sevens *= 30;
+        // Hack to make the lambda compiler not complain.
+        final double sevenPlus = sevens;
+        return (manaGroup) ->
+        {
+            if (manaGroup > 2 && manaGroup < 7)
+                return originalFunction.apply(manaGroup) * 30;
+            else if (manaGroup <= 2)
+                return twos;
+            else
+                return sevenPlus;
+        };
     }
 }

@@ -30,7 +30,7 @@ public class ArenaTierReference
         }
         catch (Exception e)
         {
-            System.out.println("Could not initialize ArenaTierReference with existing data.");
+//            System.out.println("Could not initialize ArenaTierReference with existing data.");
             tempData = new HashMap<>();
         }
         
@@ -148,5 +148,5 @@ public class ArenaTierReference
             
             return ArenaTierReference.data.get(card);
         };
-    }
+    }    
 }

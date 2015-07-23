@@ -206,8 +206,9 @@ public class DeckFactory {
          * @return A DeckFactory limited by the various options.
          */
         public DeckFactory buildDeckFactory() {
+            // TODO Implement this change in master.
             if (!allowUncollectible)
-                filter = filter.or((card) -> !card.collectible);
+                filter = filter.or((card) -> !card.collectible || card.isHero);
             return new DeckFactory(filter, limitCopies, cardsToInclude);
         }
 

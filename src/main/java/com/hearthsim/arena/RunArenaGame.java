@@ -124,7 +124,7 @@ public class RunArenaGame implements Supplier<Integer>
         
     private static boolean isReady(Generator record1, Generator record2)
     {
-        final double alpha = 0.005;
+        final double alpha = 0.1;
         final int maxGames = Integer.MAX_VALUE;
         
         if (record1.totalGames < 2 || record2.totalGames < 2)
