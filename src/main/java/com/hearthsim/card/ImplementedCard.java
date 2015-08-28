@@ -1,6 +1,7 @@
 package com.hearthsim.card;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -154,11 +155,8 @@ public class ImplementedCard implements Comparable<ImplementedCard>
 			}
 		}
 		
-		public ImplementedCard.Builder setMechanics(String mechanics)
+		public ImplementedCard.Builder setMechanics(List<String> mechanics)
 		{
-			if (mechanics == null)
-				mechanics = "";
-			
 			this.taunt = mechanics.contains(ImplementedCard.MECHANICS_TAUNT);
 			this.stealth = mechanics.contains(ImplementedCard.MECHANICS_STEALTH);
 			this.divineShield = mechanics.contains(ImplementedCard.MECHANICS_SHIELD);

@@ -43,4 +43,34 @@ public class ImplementedCardListTest
 			assertTrue(expectedName, containsVal);
 		}
 	}
+	
+	@Test
+	public void ensureNoEnchantments()
+	{
+		for(ImplementedCard card : ImplementedCardList.getInstance().getCardList())
+			assertFalse(card.name_, card.type_.equals("Enchantment"));
+	}
+	
+	@Test
+	public void ensureCorrectCard() throws ClassNotFoundException
+	{
+		ImplementedCard blessedChampion = ImplementedCardList.getInstance().getCardForName("Blessed Champion");
+		assertNotNull(blessedChampion);
+		assertEquals(blessedChampion.name_, "Blessed Champion");
+		assertEquals(blessedChampion.rarity_, "Rare");
+		assertEquals(blessedChampion.type_, "Spell");
+		assertEquals(blessedChampion.mana_, 5);
+		assertEquals(blessedChampion.text_, "Double a minion's Attack.");
+		assertTrue(blessedChampion.collectible);
+		assertEquals(blessedChampion.charClass_, "Paladin");
+		assertEquals(Class.forName("com.hearthsim.card.classic.spell.rare.BlessedChampion"), blessedChampion.cardClass_);
+	}
+	
+	@Test
+	public void ensureDivineShield()
+	{
+		ImplementedCard scarletCrusader = ImplementedCardList.getInstance().getCardForName("Scarlet Crusader");
+		assertNotNull(scarletCrusader);
+		assertTrue(scarletCrusader.divineShield_);
+	}
 }

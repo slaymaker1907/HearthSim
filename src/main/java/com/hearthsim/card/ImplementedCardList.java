@@ -142,7 +142,7 @@ public class ImplementedCardList
     	builder.durability = getOrDefault_Int(reference, "durability");
     	builder.setText(getOrDefault_String(reference, "text"));
     	builder.rarity = getOrDefault_String(reference, "rarity");
-    	builder.setMechanics(getOrDefault_String(reference, "mechanics"));
+    	builder.setMechanics(getOrDefault_Array(reference, "mechanics"));
     	return builder.build();
     }
     
@@ -180,6 +180,24 @@ public class ImplementedCardList
     	{
     		return null;
     	}
+    }
+    
+    private static List<String> getOrDefault_Array(JsonObject ob, String name)
+    {
+    	ArrayList<String> result = new ArrayList<>();
+    	try
+    	{
+    		JsonArray arr = ob.getJsonArray(name);
+    		for(int i = 0; i < arr.size(); i++)
+    		{
+    			String effect = arr.getString(i);
+    			result.add(effect);
+    		}
+    	}catch (Exception e)
+    	{
+    		
+    	}
+    	return Collections.unmodifiableList(result);
     }
     
     private static class SetAndPos
