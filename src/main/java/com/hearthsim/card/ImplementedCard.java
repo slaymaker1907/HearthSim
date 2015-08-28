@@ -105,7 +105,7 @@ public class ImplementedCard implements Comparable<ImplementedCard>
 
 		public int attack, health, durability, mana;
 		public boolean collectible;
-	    public String name, type, charClass, rarity, race;
+	    public String type, charClass, rarity, race;
 		
 		public Builder(String cardName, Class<?> cardClass)
 		{
@@ -115,7 +115,7 @@ public class ImplementedCard implements Comparable<ImplementedCard>
 			
 			this.attack = this.health = this.durability = this.mana = this.spellDamage = this.spellEffect = this.overload = 0;
 			this.collectible = this.taunt = this.divineShield = this.windfury = this.charge = this.stealth = this.cantAttack = false;
-			this.name = this.type = this.charClass = this.rarity = this.text = this.race = null;
+			this.type = this.charClass = this.rarity = this.text = this.race = null;
 		}
 		
 		public ImplementedCard.Builder setText(String text)
@@ -126,20 +126,32 @@ public class ImplementedCard implements Comparable<ImplementedCard>
 				this.text = text;
 			
 			String cleanedText = this.text.equals("") ? "" : ImplementedCard.htmlTagPattern.matcher(this.text).replaceAll("");
-			this.cantAttack = text.contains(ImplementedCard.MECHANICS_CANT_ATTACK);
+			this.cantAttack = this.text.contains(ImplementedCard.MECHANICS_CANT_ATTACK);
 			
             if (!cleanedText.equals("")) {
                 Matcher matcher = ImplementedCard.overloadPattern.matcher(cleanedText);
-                this.overload = matcher.groupCount() == 1 ? Integer.parseInt(matcher.group(1)) : 0;
+                this.overload = Builder.getMatchVal(matcher);
 
                 matcher = ImplementedCard.spellDamagePattern.matcher(cleanedText);
-                this.spellDamage = matcher.groupCount() == 1 ? Integer.parseInt(matcher.group(1)) : 0;
+                this.spellDamage = Builder.getMatchVal(matcher);
 
                 matcher = ImplementedCard.spellEffectPattern.matcher(cleanedText);
-                this.spellEffect = matcher.groupCount() == 1 ? Integer.parseInt(matcher.group(1)) : 0;
+                this.spellEffect = Builder.getMatchVal(matcher);
             }
 			
 			return this;
+		}
+		
+		private static int getMatchVal(Matcher matcher)
+		{
+			try
+			{
+				return Integer.parseInt(matcher.group(1));
+			}
+			catch (Exception e)
+			{
+				return 0;
+			}
 		}
 		
 		public ImplementedCard.Builder setMechanics(String mechanics)
