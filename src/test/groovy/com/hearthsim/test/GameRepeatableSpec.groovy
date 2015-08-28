@@ -3,6 +3,7 @@ package com.hearthsim.test
 import com.hearthsim.Game
 import com.hearthsim.card.Card
 import com.hearthsim.card.Deck
+import com.hearthsim.card.ImplementedCard
 import com.hearthsim.card.ImplementedCardList
 import com.hearthsim.card.basic.minion.NoviceEngineer
 import com.hearthsim.card.basic.spell.AnimalCompanion
@@ -176,14 +177,14 @@ class GameRepeatableSpec extends CardSpec {
         int numCardsInDeck_ = 30;
 
         ImplementedCardList supportedCards = ImplementedCardList.getInstance();
-        ArrayList<ImplementedCardList.ImplementedCard> allCards = supportedCards.getCardList();
+        ArrayList<ImplementedCard> allCards = supportedCards.getCardList();
 
         ArrayList<Card> cards1_ = new ArrayList<Card>();
         ArrayList<Card> cards2_ = new ArrayList<Card>();
 
         while(cards1_.size() < numCardsInDeck_) {
             int thisCardIndex = (int)Math.floor(Math.random() * (allCards.size() - 1));
-            ImplementedCardList.ImplementedCard card = allCards.get(thisCardIndex);
+            ImplementedCard card = allCards.get(thisCardIndex);
 
             if (card.isHero) continue;
 
@@ -192,7 +193,7 @@ class GameRepeatableSpec extends CardSpec {
 
         while(cards2_.size() < numCardsInDeck_) {
             int thisCardIndex = (int)Math.floor(Math.random() * (allCards.size() - 1));
-            ImplementedCardList.ImplementedCard card = allCards.get(thisCardIndex);
+            mplementedCard card = allCards.get(thisCardIndex);
 
             if (card.isHero) continue;
 
@@ -216,7 +217,7 @@ class GameRepeatableSpec extends CardSpec {
         ArrayList<Card> cards2_ = new ArrayList<Card>();
 
         for (String cardName : cardNames1) {
-            ImplementedCardList.ImplementedCard card = supportedCards.getCardForName(cardName);
+            ImplementedCard card = supportedCards.getCardForName(cardName);
 
             if (card == null || card.isHero) {
                 continue;
@@ -226,7 +227,7 @@ class GameRepeatableSpec extends CardSpec {
         }
 
         for (String cardName : cardNames2) {
-            ImplementedCardList.ImplementedCard card = supportedCards.getCardForName(cardName);
+            ImplementedCard card = supportedCards.getCardForName(cardName);
 
             if (card == null || card.isHero) {
                 continue;

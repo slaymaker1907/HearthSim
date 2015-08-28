@@ -2,8 +2,8 @@ package com.hearthsim.gui;
 
 import com.hearthsim.card.Card;
 import com.hearthsim.card.Deck;
+import com.hearthsim.card.ImplementedCard;
 import com.hearthsim.card.ImplementedCardList;
-import com.hearthsim.card.ImplementedCardList.ImplementedCard;
 import com.hearthsim.event.HSSimulationEventListener;
 import com.hearthsim.exception.HSInvalidCardException;
 import com.hearthsim.exception.HSInvalidHeroException;
@@ -16,6 +16,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -64,7 +65,7 @@ public class HearthSim implements HSSimulationEventListener {
     private Plot plot_aveCards;
     private Plot plot_aveHealth;
 
-    private static final ImplementedCardList IMPLEMENTED_CARD_LIST = new ImplementedCardList();
+    private static final ImplementedCardList IMPLEMENTED_CARD_LIST = ImplementedCardList.getInstance();
 
     private static final DecimalFormat pFormatter_ = new DecimalFormat("0.00");
 

@@ -39,19 +39,19 @@ public class Card implements DeepCopyable<Card> {
     protected DeathrattleAction deathrattleAction_;
     protected boolean deathrattleTriggered;
 
-    protected final ImplementedCardList.ImplementedCard implementedCard;
+    protected final ImplementedCard implementedCard;
 
     /**
      * Constructor
      */
     public Card() {
         ImplementedCardList cardList = ImplementedCardList.getInstance();
-        ImplementedCardList.ImplementedCard implementedCard = cardList.getCardForClass(this.getClass());
+        ImplementedCard implementedCard = cardList.getCardForClass(this.getClass());
         this.implementedCard = implementedCard;
         this.initFromImplementedCard(implementedCard);
     }
 
-    protected void initFromImplementedCard(ImplementedCardList.ImplementedCard implementedCard) {
+    protected void initFromImplementedCard(ImplementedCard implementedCard) {
         this.hasBeenUsed = false;
         this.inHand = true;
         this.deathrattleTriggered = false;
@@ -726,7 +726,7 @@ public class Card implements DeepCopyable<Card> {
     @Deprecated
     public Card(byte baseManaCost, boolean hasBeenUsed, boolean inHand) {
         ImplementedCardList cardList = ImplementedCardList.getInstance();
-        ImplementedCardList.ImplementedCard implementedCard = cardList.getCardForClass(this.getClass());
+        ImplementedCard implementedCard = cardList.getCardForClass(this.getClass());
         this.hasBeenUsed = hasBeenUsed;
         this.inHand = inHand;
         this.implementedCard = implementedCard;

@@ -1,11 +1,12 @@
 package com.hearthsim.card.spellcard;
 
 import com.hearthsim.card.Deck;
-import com.hearthsim.card.ImplementedCardList;
+import com.hearthsim.card.ImplementedCard;
 import com.hearthsim.card.minion.Minion;
 import com.hearthsim.event.effect.EffectCharacterDamageSpell;
 import com.hearthsim.model.PlayerSide;
 import com.hearthsim.util.tree.HearthTreeNode;
+
 import org.json.JSONObject;
 
 public class SpellDamage extends SpellCard {
@@ -32,7 +33,7 @@ public class SpellDamage extends SpellCard {
     }
 
     @Override
-    public void initFromImplementedCard(ImplementedCardList.ImplementedCard implementedCard) {
+    public void initFromImplementedCard(ImplementedCard implementedCard) {
         super.initFromImplementedCard(implementedCard);
 
         this.damage_ = (byte) implementedCard.spellEffect;

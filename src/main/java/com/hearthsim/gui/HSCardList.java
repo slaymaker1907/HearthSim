@@ -2,9 +2,10 @@ package com.hearthsim.gui;
 
 import com.hearthsim.card.Card;
 import com.hearthsim.card.Deck;
-import com.hearthsim.card.ImplementedCardList.ImplementedCard;
+import com.hearthsim.card.ImplementedCard;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

@@ -16,6 +16,7 @@ import com.hearthsim.util.HearthAction;
 import com.hearthsim.util.HearthAction.Verb;
 import com.hearthsim.util.factory.BoardStateFactoryBase;
 import com.hearthsim.util.tree.HearthTreeNode;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +92,7 @@ public class Minion extends Card implements EffectOnResolveTargetable<Card>, Car
     }
 
     @Override
-    protected void initFromImplementedCard(ImplementedCardList.ImplementedCard implementedCard) {
+    protected void initFromImplementedCard(ImplementedCard implementedCard) {
         super.initFromImplementedCard(implementedCard);
         if (implementedCard != null) {
             // only 'Minion' class is not implemented

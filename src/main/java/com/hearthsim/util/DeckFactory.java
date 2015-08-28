@@ -2,8 +2,8 @@ package com.hearthsim.util;
 
 import com.hearthsim.card.Card;
 import com.hearthsim.card.Deck;
+import com.hearthsim.card.ImplementedCard;
 import com.hearthsim.card.ImplementedCardList;
-import com.hearthsim.card.ImplementedCardList.ImplementedCard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ public class DeckFactory {
      */
     protected DeckFactory(Predicate<ImplementedCard> filter,
             boolean limitCopies, ImplementedCard[] cardsToInclude) {
-        cards = ImplementedCardList.getInstance().getCardList();
+        cards = new ArrayList<>(ImplementedCardList.getInstance().getCardList());
         cards.removeIf(filter);
         gen = new Random();
         this.limitCopies = limitCopies;

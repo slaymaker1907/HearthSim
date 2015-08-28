@@ -1,7 +1,7 @@
 package com.hearthsim.card.weapon;
 
 import com.hearthsim.card.Card;
-import com.hearthsim.card.ImplementedCardList;
+import com.hearthsim.card.ImplementedCard;
 import com.hearthsim.card.minion.Minion;
 import com.hearthsim.event.effect.EffectCharacter;
 import com.hearthsim.event.effect.EffectHeroWeapon;
@@ -32,7 +32,7 @@ public abstract class WeaponCard extends Card implements EffectOnResolveTargetab
     }
 
     @Override
-    protected void initFromImplementedCard(ImplementedCardList.ImplementedCard implementedCard) {
+    protected void initFromImplementedCard(ImplementedCard implementedCard) {
         super.initFromImplementedCard(implementedCard);
         if (implementedCard != null) {
             this.weaponCharge = (byte) implementedCard.durability;

@@ -1,10 +1,11 @@
 package com.hearthsim.test.util;
 
 import com.hearthsim.card.Deck;
+import com.hearthsim.card.ImplementedCard;
 import com.hearthsim.card.ImplementedCardList;
-import com.hearthsim.card.ImplementedCardList.ImplementedCard;
 import com.hearthsim.util.DeckFactory;
 import com.hearthsim.util.DeckFactory.DeckFactoryBuilder;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +22,7 @@ public class DeckFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        referenceCards = ImplementedCardList.getInstance().getCardList();
+        referenceCards = new ArrayList<>(ImplementedCardList.getInstance().getCardList());
         allHeroes = new HashSet<String>();
         for (ImplementedCard card : referenceCards)
             allHeroes.add(card.charClass_);

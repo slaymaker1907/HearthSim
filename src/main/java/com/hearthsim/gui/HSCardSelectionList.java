@@ -1,9 +1,10 @@
 package com.hearthsim.gui;
 
+import com.hearthsim.card.ImplementedCard;
 import com.hearthsim.card.ImplementedCardList;
-import com.hearthsim.card.ImplementedCardList.ImplementedCard;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,7 +25,7 @@ public class HSCardSelectionList extends JList<ImplementedCard> {
 
     public HSCardSelectionList() {
         super();
-        list_ = new ImplementedCardList();
+        list_ = ImplementedCardList.getInstance();
         editing_ = false;
 
         DefaultListModel<ImplementedCard> model = new DefaultListModel<>();
@@ -125,7 +126,7 @@ public class HSCardSelectionList extends JList<ImplementedCard> {
 
         @Override
         public Component getListCellRendererComponent(JList<? extends ImplementedCard> list, ImplementedCard value, int index, boolean isSelected, boolean cellHasFocus) {
-            ImplementedCardList.ImplementedCard entry = value;
+            ImplementedCard entry = value;
             if (entry.rarity_!=null){
                 switch (entry.rarity_) {
                     case "free":
